@@ -19,6 +19,7 @@ function Game() {
     votes: {},
     scores: [],
     descriptionRound: 1,
+    selectedTopic: null,
   });
 
   const [showError, setShowError] = useState(false);
@@ -138,7 +139,10 @@ function Game() {
   const handleCreateGame = (e) => {
     e.preventDefault();
     if (!gameState.playerName.trim()) return;
-    socket.emit('createGame', gameState.playerName);
+    socket.emit('createGame', {
+      playerName: gameState.playerName,
+      selectedTopic: gameState.selectedTopic || null
+    });
   };
 
   const handleJoinGame = (e) => {
@@ -206,6 +210,29 @@ function Game() {
                 onChange={(e) => setGameState(prev => ({ ...prev, playerName: e.target.value }))}
                 disabled={isJoining}
               />
+            </div>
+            <div>
+              <label htmlFor="topic" className="sr-only">
+                Topic (Optional)
+              </label>
+              <select
+                id="topic"
+                name="topic"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                value={gameState.selectedTopic || ''}
+                onChange={(e) => setGameState(prev => ({ ...prev, selectedTopic: e.target.value || null }))}
+                disabled={isJoining}
+              >
+                <option value="">Random Topic</option>
+                <option value="Food">Food</option>
+                <option value="Animal">Animal</option>
+                <option value="Country">Country</option>
+                <option value="Sport">Sport</option>
+                <option value="Game">Game</option>
+                <option value="Video Game">Video Game</option>
+                <option value="Person">Person</option>
+                <option value="Characters">Characters</option>
+              </select>
             </div>
           </div>
 

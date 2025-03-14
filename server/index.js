@@ -188,13 +188,14 @@ const getRandomPlayer = (players) => {
 io.on('connection', (socket) => {
   console.log('New client connected');
 
-  socket.on('createGame', (playerName) => {
+  socket.on('createGame', ({ playerName, selectedTopic }) => {
     const gameId = Math.random().toString(36).substring(2, 8);
     const game = {
       id: gameId,
       players: [{ id: socket.id, name: playerName, score: 0 }],
       status: 'waiting',
       topic: null,
+      selectedTopic: selectedTopic,
       secretWord: null,
       imposter: null,
       descriptions: {},
@@ -246,7 +247,7 @@ io.on('connection', (socket) => {
     if (!game) return;
 
     game.status = 'playing';
-    game.topic = getRandomTopic();
+    game.topic = game.selectedTopic || getRandomTopic();
     game.secretWord = getRandomWord(game.topic);
     game.imposter = getRandomPlayer(game.players);
 
