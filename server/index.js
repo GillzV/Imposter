@@ -109,7 +109,7 @@ const topics = {
     "Bull Riding", "Barefoot Skiing", "Extreme Ironing", "Cheerleading", "Dodgeball",
     "Tetherball", "Wiffle Ball", "Frisbee", "Airsoft", "Paintball"],
 
-  "Game": ["Chess", "Monopoly", "Scrabble", "Poker", "Checkers", "Risk", "Clue", "Battleship", "Uno", "Jenga", "Catan",
+  "Board Game": ["Chess", "Monopoly", "Scrabble", "Poker", "Checkers", "Risk", "Clue", "Battleship", "Uno", "Jenga", "Catan",
      "Backgammon", "Dominoes", "Mahjong", "Pictionary", "Twister", "Yahtzee"],
 
   "Video Game": [

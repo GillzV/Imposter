@@ -229,7 +229,7 @@ function Game() {
                 <option value="Animal">Animal</option>
                 <option value="Country">Country</option>
                 <option value="Sport">Sport</option>
-                <option value="Game">Game</option>
+                <option value="Board Game">Board Game</option>
                 <option value="Video Game">Video Game</option>
                 <option value="Person">Person</option>
                 <option value="Characters">Characters</option>
