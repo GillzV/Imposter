@@ -180,9 +180,22 @@ io.on('connection', (socket) => {
       // Check if imposter was among the most voted
       const imposterWasVotedOut = mostVotedPlayers.includes(game.imposter.id);
       
+      // If there's a tie in votes, imposter wins (survives)
+      const isTie = mostVotedPlayers.length > 1;
+      const imposterWins = isTie || !imposterWasVotedOut;
+      
       // Update scores based on the correct rules
       game.players.forEach(player => {
-        if (imposterWasVotedOut) {
+        if (imposterWins) {
+          // If imposter survives (either through tie or not being caught):
+          // - Imposter gets 2 points
+          // - All investigators get 0 points
+          if (player.id === game.imposter.id) {
+            player.score += 2;
+          } else {
+            player.score += 0;
+          }
+        } else {
           // If imposter was caught:
           // - Each investigator gets 1 point
           // - Imposter gets 0 points
@@ -191,25 +204,17 @@ io.on('connection', (socket) => {
           } else {
             player.score += 1;
           }
-        } else {
-          // If imposter wasn't caught:
-          // - Imposter gets 2 points
-          // - All investigators get 0 points
-          if (player.id === game.imposter.id) {
-            player.score += 2;
-          } else {
-            player.score += 0;
-          }
         }
       });
 
       // Emit round results
       io.to(gameId).emit('roundResults', {
-        imposterCaught: imposterWasVotedOut,
+        imposterCaught: !imposterWins,
         imposter: game.imposter,
         mostVotedPlayers: mostVotedPlayers,
         votes: game.votes,
-        scores: game.players.map(p => ({ name: p.name, score: p.score }))
+        scores: game.players.map(p => ({ name: p.name, score: p.score })),
+        isTie
       });
 
       // Reset game state for next round

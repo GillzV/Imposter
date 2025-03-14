@@ -456,7 +456,9 @@ function Game() {
               <p className="mt-2 text-sm text-gray-500">
                 {gameState.imposterCaught 
                   ? "The Imposter was caught and got 0 points!" 
-                  : "The Imposter survived! He gets 2 points!"}
+                  : gameState.isTie
+                    ? "The Imposter survived! He gets 2 points!"
+                    : "The Imposter survived! He gets 2 points!"}
               </p>
             </div>
           </div>
