@@ -3,23 +3,9 @@ import io from 'socket.io-client';
 import { Dialog } from '@headlessui/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
-// Use environment variable for server URL
-const socket = io(process.env.REACT_APP_SERVER_URL || 'http://localhost:3002', {
-  transports: ['websocket'],
-  reconnection: true,
-  reconnectionAttempts: 5,
-  reconnectionDelay: 1000,
-  withCredentials: true
-});
-
-// Add connection status logging
-socket.on('connect', () => {
-  console.log('Connected to server');
-});
-
-socket.on('connect_error', (error) => {
-  console.error('Connection error:', error);
-});
+// Use environment variable for server URL, fallback to localhost
+const SERVER_URL = process.env.REACT_APP_SERVER_URL || 'http://localhost:3001';
+const socket = io(SERVER_URL);
 
 function Game() {
   const [gameState, setGameState] = useState({
