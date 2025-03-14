@@ -17,7 +17,9 @@ function Game() {
     description: '',
     descriptions: {},
     votes: {},
-    scores: []
+    scores: [],
+    descriptionRound: 1,
+    maxDescriptionRounds: 3
   });
 
   const [showError, setShowError] = useState(false);
@@ -58,7 +60,19 @@ function Game() {
       }));
     });
 
-    socket.on('allDescriptionsSubmitted', ({ descriptions, players }) => {
+    socket.on('allDescriptionsSubmitted', ({ descriptions, players, currentRound, maxRounds }) => {
+      setGameState(prev => ({
+        ...prev,
+        descriptions,
+        players,
+        status: 'describing',
+        description: '',
+        descriptionRound: currentRound,
+        maxDescriptionRounds: maxRounds
+      }));
+    });
+
+    socket.on('votingStarted', ({ descriptions, players }) => {
       setGameState(prev => ({
         ...prev,
         descriptions,
@@ -67,9 +81,12 @@ function Game() {
       }));
     });
 
-    socket.on('roundResults', ({ imposterCaught, imposter, votes, scores }) => {
+    socket.on('roundResults', ({ imposterCaught, imposter, mostVotedPlayers, votes, scores }) => {
       setGameState(prev => ({
         ...prev,
+        imposterCaught,
+        imposter,
+        mostVotedPlayers,
         votes,
         scores,
         status: 'results'
@@ -89,6 +106,7 @@ function Game() {
       socket.off('playerJoined');
       socket.off('gameStarted');
       socket.off('allDescriptionsSubmitted');
+      socket.off('votingStarted');
       socket.off('roundResults');
       socket.off('playerLeft');
     };
@@ -133,6 +151,10 @@ function Game() {
       gameId: gameState.gameId,
       votedForId
     });
+  };
+
+  const handleStartVoting = () => {
+    socket.emit('startVoting', gameState.gameId);
   };
 
   const renderInitialScreen = () => (
@@ -273,6 +295,31 @@ function Game() {
               <span className="block text-green-600">Secret Word: {gameState.secretWord}</span>
             )}
           </p>
+          <p className="mt-2 text-center text-sm text-gray-500">
+            Round {gameState.descriptionRound} of {gameState.maxDescriptionRounds}
+          </p>
+        </div>
+
+        <div className="mt-4">
+          <h3 className="text-lg font-medium text-gray-900">Previous Descriptions:</h3>
+          <ul className="mt-2 divide-y divide-gray-200">
+            {Object.entries(gameState.descriptions)
+              .filter(([round]) => parseInt(round) < gameState.descriptionRound)
+              .map(([round, roundDescriptions]) => (
+                <li key={round} className="py-2">
+                  <p className="text-sm font-medium text-gray-900">Round {round}:</p>
+                  {Object.entries(roundDescriptions).map(([playerId, description]) => {
+                    const player = gameState.players.find(p => p.id === playerId);
+                    return (
+                      <div key={playerId} className="ml-4 mt-1">
+                        <p className="text-sm font-medium text-gray-900">{player.name}:</p>
+                        <p className="text-sm text-gray-500">{description}</p>
+                      </div>
+                    );
+                  })}
+                </li>
+              ))}
+          </ul>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmitDescription}>
@@ -292,13 +339,23 @@ function Game() {
             />
           </div>
 
-          <div>
+          <div className="space-y-4">
             <button
               type="submit"
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Submit Description
             </button>
+            
+            {gameState.descriptionRound > 1 && (
+              <button
+                type="button"
+                onClick={handleStartVoting}
+                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              >
+                Start Voting
+              </button>
+            )}
           </div>
         </form>
       </div>
@@ -320,66 +377,94 @@ function Game() {
         <div className="mt-8">
           <h3 className="text-lg font-medium text-gray-900">Descriptions:</h3>
           <ul className="mt-4 divide-y divide-gray-200">
-            {Object.entries(gameState.descriptions).map(([playerId, description]) => {
-              const player = gameState.players.find(p => p.id === playerId);
-              return (
-                <li key={playerId} className="py-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-900">{player.name}</span>
-                    <button
-                      onClick={() => handleVote(playerId)}
-                      className="ml-4 inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                      Vote
-                    </button>
-                  </div>
-                  <p className="mt-1 text-sm text-gray-500">{description}</p>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderResultsScreen = () => (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Round Results
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            {gameState.imposterCaught ? 'The Imposter was caught!' : 'The Imposter got away!'}
-          </p>
-        </div>
-
-        <div className="mt-8">
-          <h3 className="text-lg font-medium text-gray-900">Scores:</h3>
-          <ul className="mt-4 divide-y divide-gray-200">
-            {gameState.scores.map(({ name, score }) => (
-              <li key={name} className="py-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-900">{name}</span>
-                  <span className="text-sm text-gray-500">{score} points</span>
-                </div>
+            {Object.entries(gameState.descriptions).map(([round, roundDescriptions]) => (
+              <li key={round} className="py-3">
+                <p className="text-sm font-medium text-gray-900">Round {round}:</p>
+                {Object.entries(roundDescriptions).map(([playerId, description]) => {
+                  const player = gameState.players.find(p => p.id === playerId);
+                  return (
+                    <div key={playerId} className="ml-4 mt-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-900">{player.name}</span>
+                        <button
+                          onClick={() => handleVote(playerId)}
+                          className="ml-4 inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                          Vote
+                        </button>
+                      </div>
+                      <p className="mt-1 text-sm text-gray-500">{description}</p>
+                    </div>
+                  );
+                })}
               </li>
             ))}
           </ul>
         </div>
-
-        <div>
-          <button
-            onClick={() => setGameState(prev => ({ ...prev, status: 'waiting' }))}
-            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Play Another Round
-          </button>
-        </div>
       </div>
     </div>
   );
+
+  const renderResultsScreen = () => {
+    const votedOutPlayers = gameState.mostVotedPlayers
+      .map(playerId => gameState.players.find(p => p.id === playerId))
+      .filter(Boolean)
+      .map(p => p.name)
+      .join(', ');
+
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          <div>
+            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+              Round Results
+            </h2>
+            <div className="mt-4 text-center">
+              <p className="text-lg font-medium text-gray-900">
+                Most Voted Players (Lost this round):
+              </p>
+              <p className="mt-1 text-base text-red-600">
+                {votedOutPlayers}
+              </p>
+              <p className="mt-4 text-base text-gray-600">
+                The Imposter was {gameState.imposter.name}
+              </p>
+              <p className="mt-2 text-sm text-gray-500">
+                {gameState.imposterCaught 
+                  ? "The Imposter was caught and got 0 points!" 
+                  : "The Imposter survived! He gets 2 points!"}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <h3 className="text-lg font-medium text-gray-900">Current Scores:</h3>
+            <ul className="mt-4 divide-y divide-gray-200">
+              {gameState.scores
+                .sort((a, b) => b.score - a.score) // Sort by score in descending order
+                .map(({ name, score }) => (
+                  <li key={name} className="py-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-900">{name}</span>
+                      <span className="text-sm text-gray-500">{score} points</span>
+                    </div>
+                  </li>
+                ))}
+            </ul>
+          </div>
+
+          <div>
+            <button
+              onClick={() => setGameState(prev => ({ ...prev, status: 'waiting' }))}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Play Another Round
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const renderErrorDialog = () => (
     <Dialog

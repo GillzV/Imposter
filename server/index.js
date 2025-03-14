@@ -58,7 +58,9 @@ io.on('connection', (socket) => {
       imposter: null,
       descriptions: {},
       votes: {},
-      round: 1
+      round: 1,
+      descriptionRound: 1,
+      maxDescriptionRounds: 3
     };
     games.set(gameId, game);
     socket.join(gameId);
@@ -124,15 +126,35 @@ io.on('connection', (socket) => {
     const player = game.players.find(p => p.id === socket.id);
     if (!player) return;
 
-    game.descriptions[player.id] = description;
+    // Store descriptions with round number
+    if (!game.descriptions[game.descriptionRound]) {
+      game.descriptions[game.descriptionRound] = {};
+    }
+    game.descriptions[game.descriptionRound][player.id] = description;
 
-    // Check if all players have submitted descriptions
-    if (Object.keys(game.descriptions).length === game.players.length) {
+    // Check if all players have submitted descriptions for this round
+    if (Object.keys(game.descriptions[game.descriptionRound]).length === game.players.length) {
+      // Move to next description round
+      game.descriptionRound += 1;
+      game.status = 'describing';
       io.to(gameId).emit('allDescriptionsSubmitted', {
         descriptions: game.descriptions,
-        players: game.players.map(p => ({ id: p.id, name: p.name }))
+        players: game.players.map(p => ({ id: p.id, name: p.name })),
+        currentRound: game.descriptionRound,
+        maxRounds: game.maxDescriptionRounds
       });
     }
+  });
+
+  socket.on('startVoting', (gameId) => {
+    const game = games.get(gameId);
+    if (!game) return;
+
+    game.status = 'voting';
+    io.to(gameId).emit('votingStarted', {
+      descriptions: game.descriptions,
+      players: game.players.map(p => ({ id: p.id, name: p.name }))
+    });
   });
 
   socket.on('submitVote', ({ gameId, votedForId }) => {
@@ -149,30 +171,43 @@ io.on('connection', (socket) => {
         voteCounts[votedId] = (voteCounts[votedId] || 0) + 1;
       });
 
-      // Find player with most votes
+      // Find player(s) with most votes
       const maxVotes = Math.max(...Object.values(voteCounts));
-      const suspectedPlayers = Object.entries(voteCounts)
+      const mostVotedPlayers = Object.entries(voteCounts)
         .filter(([_, count]) => count === maxVotes)
         .map(([id]) => id);
 
-      // Determine if imposter was caught
-      const imposterCaught = suspectedPlayers.includes(game.imposter.id);
-
-      // Update scores
+      // Check if imposter was among the most voted
+      const imposterWasVotedOut = mostVotedPlayers.includes(game.imposter.id);
+      
+      // Update scores based on the correct rules
       game.players.forEach(player => {
-        if (imposterCaught) {
-          if (player.id !== game.imposter.id) {
+        if (imposterWasVotedOut) {
+          // If imposter was caught:
+          // - Each investigator gets 1 point
+          // - Imposter gets 0 points
+          if (player.id === game.imposter.id) {
+            player.score += 0;
+          } else {
             player.score += 1;
           }
-        } else if (player.id === game.imposter.id) {
-          player.score += 2;
+        } else {
+          // If imposter wasn't caught:
+          // - Imposter gets 2 points
+          // - All investigators get 0 points
+          if (player.id === game.imposter.id) {
+            player.score += 2;
+          } else {
+            player.score += 0;
+          }
         }
       });
 
       // Emit round results
       io.to(gameId).emit('roundResults', {
-        imposterCaught,
+        imposterCaught: imposterWasVotedOut,
         imposter: game.imposter,
+        mostVotedPlayers: mostVotedPlayers,
         votes: game.votes,
         scores: game.players.map(p => ({ name: p.name, score: p.score }))
       });
@@ -185,6 +220,7 @@ io.on('connection', (socket) => {
       game.descriptions = {};
       game.votes = {};
       game.round += 1;
+      game.descriptionRound = 1;
     }
   });
 
