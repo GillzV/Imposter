@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import { Dialog } from '@headlessui/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
-const socket = io('http://localhost:3002');
+const socket = io(process.env.REACT_APP_SOCKET_URL || 'http://localhost:3002');
 
 function Game() {
   const [gameState, setGameState] = useState({
