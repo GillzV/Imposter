@@ -19,12 +19,27 @@ function Game() {
     votes: {},
     scores: [],
     descriptionRound: 1,
-    maxDescriptionRounds: 3
   });
 
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isJoining, setIsJoining] = useState(false);
+  const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
+
+  const Notification = ({ message, type }) => (
+    <div className={`fixed top-4 right-4 p-4 rounded-md shadow-lg ${
+      type === 'success' ? 'bg-green-500' : 'bg-blue-500'
+    } text-white`}>
+      {message}
+    </div>
+  );
+
+  const showNotification = (message, type = 'success') => {
+    setNotification({ show: true, message, type });
+    setTimeout(() => {
+      setNotification({ show: false, message: '', type: 'success' });
+    }, 3000);
+  };
 
   useEffect(() => {
     socket.on('error', ({ message }) => {
@@ -40,6 +55,7 @@ function Game() {
         playerName,
         status: 'waiting'
       }));
+      showNotification('Game created successfully!');
     });
 
     socket.on('playerJoined', ({ players }) => {
@@ -48,6 +64,7 @@ function Game() {
         players
       }));
       setIsJoining(false);
+      showNotification('Successfully joined the game!');
     });
 
     socket.on('gameStarted', ({ topic, secretWord, isImposter }) => {
@@ -56,8 +73,12 @@ function Game() {
         topic,
         secretWord,
         isImposter,
-        status: 'describing'
+        status: 'describing',
+        description: '',
+        descriptions: {},
+        descriptionRound: 1
       }));
+      showNotification('Game started!');
     });
 
     socket.on('allDescriptionsSubmitted', ({ descriptions, players, currentRound, maxRounds }) => {
@@ -68,7 +89,6 @@ function Game() {
         status: 'describing',
         description: '',
         descriptionRound: currentRound,
-        maxDescriptionRounds: maxRounds
       }));
     });
 
@@ -89,7 +109,10 @@ function Game() {
         mostVotedPlayers,
         votes,
         scores,
-        status: 'results'
+        status: 'results',
+        descriptions: {},
+        description: '',
+        descriptionRound: 1
       }));
     });
 
@@ -144,6 +167,7 @@ function Game() {
       gameId: gameState.gameId,
       description: gameState.description
     });
+    showNotification('Description submitted successfully!');
   };
 
   const handleVote = (votedForId) => {
@@ -296,7 +320,7 @@ function Game() {
             )}
           </p>
           <p className="mt-2 text-center text-sm text-gray-500">
-            Round {gameState.descriptionRound} of {gameState.maxDescriptionRounds}
+            Round {gameState.descriptionRound} 
           </p>
         </div>
 
@@ -501,6 +525,7 @@ function Game() {
   return (
     <>
       {renderErrorDialog()}
+      {notification.show && <Notification message={notification.message} type={notification.type} />}
       {gameState.status === 'initial' && renderInitialScreen()}
       {gameState.status === 'waiting' && renderWaitingScreen()}
       {gameState.status === 'describing' && renderDescriptionScreen()}
