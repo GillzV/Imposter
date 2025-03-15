@@ -188,106 +188,154 @@ function Game() {
 
   const renderInitialScreen = () => (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+      <div className="max-w-3xl w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Welcome to Imposter Game
+          <h2 className="mt-6 text-center text-4xl font-extrabold text-gray-900">
+            Who is the Imposter?
           </h2>
+          
+          {/* How to Play Section */}
+          <div className="mt-8 bg-white shadow-sm rounded-lg p-6">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">How to Play</h3>
+            <div className="space-y-4">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-indigo-100 text-indigo-600 text-lg font-semibold">1</span>
+                </div>
+                <p className="ml-4 text-gray-600">
+                  <span className="font-medium">Setup:</span> Investigators receive a random secret word, while the Imposter only knows the theme.
+                </p>
+              </div>
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-indigo-100 text-indigo-600 text-lg font-semibold">2</span>
+                </div>
+                <p className="ml-4 text-gray-600">
+                  <span className="font-medium">Gameplay:</span> Players take turns describing the secret word—without being too obvious or saying it directly. Remember, anyone could be lying!
+                </p>
+              </div>
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-indigo-100 text-indigo-600 text-lg font-semibold">3</span>
+                </div>
+                <p className="ml-4 text-gray-600">
+                  <span className="font-medium">Goal:</span> Find the imposter!
+                </p>
+              </div>
+              
+              <div className="mt-6 bg-gray-50 rounded-md p-4">
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Scoring</h4>
+                <ul className="list-disc list-inside space-y-2 text-gray-600">
+                  <li>If the imposter is caught: Investigators get 1 point each, Imposter gets 0 points</li>
+                  <li>If the imposter survives: Imposter gets 2 points, Investigators get 0 points</li>
+                  <li>If there is a tie in votes between the imposter and an investigator, 
+                    the imposter survives so think carefully!</li>
+                </ul>
+              </div>
+              
+              <p className="text-gray-600 italic mt-4">
+                Bluff as best as you can, and uncover the imposter to win!
+              </p>
+            </div>
+          </div>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleCreateGame}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="player-name" className="sr-only">
-                Your Name
-              </label>
-              <input
-                id="player-name"
-                name="player-name"
-                type="text"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Your Name"
-                value={gameState.playerName}
-                onChange={(e) => setGameState(prev => ({ ...prev, playerName: e.target.value }))}
-                disabled={isJoining}
-              />
-            </div>
-            <div>
-              <label htmlFor="topic" className="sr-only">
-                Topic (Optional)
-              </label>
-              <select
-                id="topic"
-                name="topic"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                value={gameState.selectedTopic || ''}
-                onChange={(e) => setGameState(prev => ({ ...prev, selectedTopic: e.target.value || null }))}
-                disabled={isJoining}
-              >
-                <option value="">Random Topic</option>
-                <option value="Food">Food</option>
-                <option value="Animal">Animal</option>
-                <option value="Country">Country</option>
-                <option value="Sport">Sport</option>
-                <option value="Board Game">Board Game</option>
-                <option value="Video Game">Video Game</option>
-                <option value="Person">Person</option>
-                <option value="Characters">Characters</option>
-              </select>
-            </div>
-          </div>
 
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              disabled={isJoining}
-            >
-              Create New Game
-            </button>
-          </div>
-        </form>
-
-        <div className="mt-6">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gray-50 text-gray-500">Or</span>
-            </div>
-          </div>
-
-          <form className="mt-6 space-y-6" onSubmit={handleJoinGame}>
+        <div className="bg-white shadow-sm rounded-lg p-6">
+          <form className="space-y-6" onSubmit={handleCreateGame}>
             <div className="rounded-md shadow-sm -space-y-px">
               <div>
-                <label htmlFor="game-id" className="sr-only">
-                  Game ID
+                <label htmlFor="player-name" className="sr-only">
+                  Your Name
                 </label>
                 <input
-                  id="game-id"
-                  name="game-id"
+                  id="player-name"
+                  name="player-name"
                   type="text"
                   required
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                  placeholder="Game ID"
-                  value={gameState.gameId}
-                  onChange={(e) => setGameState(prev => ({ ...prev, gameId: e.target.value }))}
+                  placeholder="Your Name"
+                  value={gameState.playerName}
+                  onChange={(e) => setGameState(prev => ({ ...prev, playerName: e.target.value }))}
                   disabled={isJoining}
                 />
+              </div>
+              <div>
+                <label htmlFor="topic" className="sr-only">
+                  Topic (Optional)
+                </label>
+                <select
+                  id="topic"
+                  name="topic"
+                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  value={gameState.selectedTopic || ''}
+                  onChange={(e) => setGameState(prev => ({ ...prev, selectedTopic: e.target.value || null }))}
+                  disabled={isJoining}
+                >
+                  <option value="">Random Topic</option>
+                  <option value="Food">Food</option>
+                  <option value="Animal">Animal</option>
+                  <option value="Country">Country</option>
+                  <option value="Sport">Sport</option>
+                  <option value="Board Game">Board Game</option>
+                  <option value="Video Game">Video Game</option>
+                  <option value="Person">Person</option>
+                  <option value="Characters">Characters</option>
+                </select>
               </div>
             </div>
 
             <div>
               <button
                 type="submit"
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 disabled={isJoining}
               >
-                {isJoining ? 'Joining...' : 'Join Game'}
+                Create New Game
               </button>
             </div>
           </form>
+
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">Or</span>
+              </div>
+            </div>
+
+            <form className="mt-6 space-y-6" onSubmit={handleJoinGame}>
+              <div className="rounded-md shadow-sm -space-y-px">
+                <div>
+                  <label htmlFor="game-id" className="sr-only">
+                    Game ID
+                  </label>
+                  <input
+                    id="game-id"
+                    name="game-id"
+                    type="text"
+                    required
+                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                    placeholder="Game ID"
+                    value={gameState.gameId}
+                    onChange={(e) => setGameState(prev => ({ ...prev, gameId: e.target.value }))}
+                    disabled={isJoining}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <button
+                  type="submit"
+                  className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isJoining}
+                >
+                  {isJoining ? 'Joining...' : 'Join Game'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>
@@ -550,6 +598,7 @@ function Game() {
         </Dialog.Panel>
       </div>
     </Dialog>
+
   );
 
   return (
@@ -561,8 +610,17 @@ function Game() {
       {gameState.status === 'describing' && renderDescriptionScreen()}
       {gameState.status === 'voting' && renderVotingScreen()}
       {gameState.status === 'results' && renderResultsScreen()}
+  
+      {/* Footer Section */}
+      <footer className="text-center text-xs text-gray-500 py-4 absolute bottom-0 w-full bg-gray-100">
+        Lefty is the sus one lowkey everyone vote for him
+      </footer>
     </>
   );
+  
 }
+
+
+
 
 export default Game; 
