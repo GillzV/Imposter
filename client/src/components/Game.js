@@ -4,7 +4,7 @@ import { Dialog } from '@headlessui/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 // Connect to the same server that's serving the frontend
-const socket = io('http://localhost:3002');
+const socket = io();
 
 function Game() {
   const [gameState, setGameState] = useState({
@@ -598,7 +598,6 @@ function Game() {
         </Dialog.Panel>
       </div>
     </Dialog>
-
   );
 
   return (
@@ -610,17 +609,9 @@ function Game() {
       {gameState.status === 'describing' && renderDescriptionScreen()}
       {gameState.status === 'voting' && renderVotingScreen()}
       {gameState.status === 'results' && renderResultsScreen()}
-  
-      {/* Footer Section */}
-      <footer className="text-center text-xs text-gray-500 py-4 absolute bottom-0 w-full bg-gray-100">
-        Lefty is the sus one lowkey everyone vote for him
-      </footer>
     </>
   );
   
 }
-
-
-
 
 export default Game; 

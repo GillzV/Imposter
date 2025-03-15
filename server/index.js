@@ -22,7 +22,7 @@ app.use(express.static(path.join(__dirname, '../client/build')));
 
 // Handle React routing, return all requests to React app
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+  res.sendFile(path.join(__dirname, '../client/build/index.html'));
 });
 
 // Game state
@@ -39,7 +39,7 @@ const topics = {
     "Fajitas", "Spring Rolls", "Clam Chowder", "Gumbo", "Paella", "Samosa",
     "Shawarma", "Gyro", "Poke Bowl", "Banh Mi", "Ceviche", "Falafel", "Jambalaya",
     "Empanadas", "Tamales", "Bibimbap", "Pierogi", "Gnocchi", "Cobb Salad",
-    "Caprese Salad", "Omelette", "Scrambled Eggs", "Bagel with Cream Cheese",
+    "Salad", "Omelette", "Scrambled Eggs", "Bagel with Cream Cheese",
     "Croissant", "Pretzel", "Churros", "Mochi", "Baklava", "Tiramisu", "Gelato",
     "Rice Pudding", "Flan", "Horchata", "Hummus", "Guacamole", "Meatballs", 
     "Fondue", "Crispy Duck", "Dim Sum", "Pad Thai", "Kimchi", "Miso Soup",
@@ -55,16 +55,16 @@ const topics = {
     "Cheetah", "Leopard", "Jaguar", "Wolf", "Fox", "Bear", "Grizzly Bear", "Polar Bear",
     "Koala", "Zebra", "Hippopotamus", "Rhinoceros", "Crocodile", "Alligator", "Turtle",
     "Tortoise", "Chameleon", "Iguana", "Gecko", "Eagle", "Hawk",
-    "Falcon", "Owl", "Vulture", "Peacock", "Flamingo", "Parrot", "Macaw", "Hummingbird",
+    "Falcon", "Owl", "Vulture", "Peacock", "Flamingo", "Parrot", "Hummingbird",
     "Goose", "Duck", "Turkey", "Ostrich", "Bald Eagle", "Horse", "Donkey",
      "Cow", "Bison", "Buffalo", "Moose", "Deer", "Antelope", "Gazelle", "Sheep",
     "Goat", "Camel", "Llama", "Alpaca", "Hedgehog", "Armadillo", "Sloth", "Opossum",
-    "Raccoon", "Skunk", "Beaver", "Otter", "Mink", "Weasel", "Badger", "Wolverine",
+    "Raccoon", "Skunk", "Beaver", "Otter", "Weasel", "Badger", "Wolverine",
     "Chimpanzee", "Gorilla", "Orangutan", 
     "Hyena", "Jackal", "Coyote", "Whale", "Blue Whale", "Humpback Whale",
     "Orca", "Shark", "Great White Shark", "Hammerhead Shark", "Manta Ray", "Stingray",
     "Seahorse", "Jellyfish", "Octopus", "Squid", "Lobster", "Crab", "Starfish",
-    "Clownfish", "Pufferfish", "Swordfish", "Barracuda", "Eel", "Anaconda", "Python",
+    "Clownfish", "Pufferfish", "Puffin", "Swordfish", "Barracuda", "Eel", "Anaconda", "Python",
     "Cobra", "Rattlesnake","Frog", "Toad", "Salamander", 
     "Tarantula", "Scorpion", "Butterfly", "Moth", "Bee", "Wasp", "Ant", "Grasshopper",
     "Cricket", "Praying Mantis", "Dragonfly", "Firefly", "Ladybug", "Snail", "Slug",
@@ -149,7 +149,8 @@ const topics = {
     "AuronPlay", "SypherPK", "TimTheTatman", "Dream", "Markiplier", "Jacksepticeye", "PewDiePie", 
     "Logan Paul", "KSI", "Smosh", "Dude Perfect", "Casey Neistat", "Emma Chamberlain", 
     "David Dobrik", "MrBeast", "James Charles", "Tana Mongeau", "Liza Koshy", "The Try Guys", 
-    "DanTDM", "Jack Harlow","Iron Man", "Spider-Man", 
+    "DanTDM", "Jack Harlow","Iron Man", "Spider-Man", "Dean Winchester", "Sam Winchester", "Castiel", "Crowley","Lucifer","Misha Collins",
+    "DareDevil","Luke Cage", "Iron Fist", "The Punisher","Luke Cage", "Iron Fist", "The Punisher",
     "Superman", "Batman", "The Joker", "Wonder Woman", "Deadpool", "Black Panther", "Thanos"],
 
 
