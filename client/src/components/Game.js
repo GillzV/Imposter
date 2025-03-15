@@ -3,10 +3,9 @@ import io from 'socket.io-client';
 import { Dialog } from '@headlessui/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
-// Connect to the same server that's serving the frontend
-const socket = io(
-  process.env.REACT_APP_SOCKET_URL || 'http://localhost:3002'
-);
+
+const socket = io();
+
 
 
 function Game() {
