@@ -4,7 +4,10 @@ import { Dialog } from '@headlessui/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 // Connect to the same server that's serving the frontend
-const socket = io();
+const socket = io(
+  process.env.REACT_APP_SOCKET_URL || 'http://localhost:3002'
+);
+
 
 function Game() {
   const [gameState, setGameState] = useState({
