@@ -175,9 +175,74 @@ const topics = {
     "Luffy", "Naruto Uzumaki", "SpongeBob SquarePants", 
     "Mickey Mouse", "Bugs Bunny", "Homer Simpson", "Bart Simpson", "Looney Tunes", "Rick Sanchez", 
     "Morty Smith", "Scooby-Doo", "Shaggy Rogers", "Tom and Jerry", "The Flintstones", "Pikachu", 
-    "Ash Ketchum", "Goku", "Vegeta", "Naruto Uzumaki", "Sailor Moon" ]
+    "Ash Ketchum", "Goku", "Vegeta", "Naruto Uzumaki", "Sailor Moon" ],
 
-
+  "Questions": [
+    {
+      main: "Where was the worst place you took a dump?",
+      sub: "What's the ideal place for a relaxing vacation?"
+    },
+    {
+      main: "What's your favorite movie",
+      sub: "What movie do you think is super overrated"
+    },
+    {
+      main: "Craziest place you have ever pooped?",
+      sub: "Best place to relax?"
+    },
+    {
+      main: "Which celebrity would you like to switch lives with",
+      sub: "Who is the most controversial celebrity of all time"
+    },
+    {
+      main: "How many unread emails or messages are in your inbox?",
+      sub: "What's your favorite number and why?"
+    },
+    {
+      main: "What's the best meal you could imagine eating?",
+      sub: "What's the worst food you've ever tasted?"
+    },
+    {
+      main: "What's a song you could listen to forever?",
+      sub: "What's the most annoying song you've ever heard?"
+    },
+    {
+      main: "What's the worst gift you've ever received?",
+      sub: "What's your ideal birthday gift?"
+    },
+    {
+      main: "Who do you think in the group would be the first to be arrested?",
+      sub: "Who in the group do you think would be secretly gay?"
+    },
+    {
+      main: "What's your favorite scent?",
+      sub: "What's the weirdest thing you've smelled?"
+    },
+    {
+      main: "What's the most embarrassing thing you've searched online?",
+      sub: "What's the most interesting topic you've researched?"
+    },
+    {
+      main: "What's the worst song to play at a funeral?",
+      sub: "What's the best song for a road trip?"
+    },
+    {
+      main: "What's the dumbest reason you've gotten into trouble?",
+      sub: "What's your proudest achievement?"
+    },
+    {
+      main: "What's a pickup line you think could actually work?",
+      sub: "What's the worst pickup line you've ever heard?"
+    },
+    {
+      main: "What's the cutest animal imaginable?",
+      sub: "What's the ugliest animal you've seen?"
+    },
+    {
+      main: "What will you name your child?",
+      sub: "What's the worst name you've ever heard for a pet?"
+    }
+  ]
 };
 
 // Helper functions
@@ -187,6 +252,11 @@ const getRandomTopic = () => {
 };
 
 const getRandomWord = (topic) => {
+  if (topic === "Questions") {
+    const questions = topics[topic];
+    const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+    return randomQuestion;
+  }
   const words = topics[topic];
   return words[Math.floor(Math.random() * words.length)];
 };
@@ -208,6 +278,7 @@ io.on('connection', (socket) => {
       topic: null,
       selectedTopic: selectedTopic,
       secretWord: null,
+      mainQuestion: null,
       imposter: null,
       descriptions: {},
       votes: {},
@@ -253,23 +324,49 @@ io.on('connection', (socket) => {
     io.to(gameId).emit('playerJoined', { players: game.players });
   });
 
-  socket.on('startGame', (gameId) => {
+  socket.on('startGame', ({ gameId }) => {
     const game = games.get(gameId);
     if (!game) return;
 
     game.status = 'playing';
-    game.topic = game.selectedTopic || getRandomTopic();
-    game.secretWord = getRandomWord(game.topic);
     game.imposter = getRandomPlayer(game.players);
-
-    // Notify players of their roles
-    game.players.forEach(player => {
-      io.to(player.id).emit('gameStarted', {
-        topic: game.topic,
-        secretWord: player.id === game.imposter.id ? null : game.secretWord,
-        isImposter: player.id === game.imposter.id
+    game.topic = game.selectedTopic || getRandomTopic();
+    const word = getRandomWord(game.topic);
+    
+    if (game.topic === "Questions") {
+      game.secretWord = word;
+      game.mainQuestion = word.main;
+      
+      // Send different questions to imposter and investigators
+      game.players.forEach(player => {
+        if (player.id === game.imposter.id) {
+          io.to(player.id).emit('gameStarted', {
+            topic: game.topic,
+            word: word.sub,
+            isImposter: true,
+            mainQuestion: word.main
+          });
+        } else {
+          io.to(player.id).emit('gameStarted', {
+            topic: game.topic,
+            word: word.main,
+            isImposter: false,
+            mainQuestion: word.main
+          });
+        }
       });
-    });
+    } else {
+      game.secretWord = word;
+      
+      // Handle normal topics as before
+      game.players.forEach(player => {
+        io.to(player.id).emit('gameStarted', {
+          topic: game.topic,
+          word: player.id === game.imposter.id ? null : word,
+          isImposter: player.id === game.imposter.id
+        });
+      });
+    }
   });
 
   socket.on('submitDescription', ({ gameId, description }) => {

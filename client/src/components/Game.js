@@ -22,6 +22,8 @@ function Game() {
     scores: [],
     descriptionRound: 1,
     selectedTopic: null,
+    word: '',
+    mainQuestion: '',
   });
 
   const [showError, setShowError] = useState(false);
@@ -70,18 +72,18 @@ function Game() {
       showNotification('Successfully joined the game!');
     });
 
-    socket.on('gameStarted', ({ topic, secretWord, isImposter }) => {
+    socket.on('gameStarted', (data) => {
       setGameState(prev => ({
         ...prev,
-        topic,
-        secretWord,
-        isImposter,
         status: 'describing',
-        description: '',
+        topic: data.topic,
+        word: data.word,
+        isImposter: data.isImposter,
+        mainQuestion: data.mainQuestion,
         descriptions: {},
         descriptionRound: 1
       }));
-      showNotification('Game started!');
+      showNotification('Game started!', 'success');
     });
 
     socket.on('allDescriptionsSubmitted', ({ descriptions, players, currentRound, maxRounds }) => {
@@ -163,7 +165,7 @@ function Game() {
   };
 
   const handleStartGame = () => {
-    socket.emit('startGame', gameState.gameId);
+    socket.emit('startGame', { gameId: gameState.gameId });
   };
 
   const handleSubmitDescription = (e) => {
@@ -306,10 +308,11 @@ function Game() {
                   <option value="Animal">Animal</option>
                   <option value="Country">Country</option>
                   <option value="Sport">Sport</option>
-                  <option value="Board Game">Board Game</option>
+                  <option value="Game">Game</option>
                   <option value="Video Game">Video Game</option>
                   <option value="Person">Person</option>
                   <option value="Characters">Characters</option>
+                  <option value="Questions">Questions</option>
                 </select>
               </div>
             </div>
@@ -415,19 +418,27 @@ function Game() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Describe the Word
+            Round {gameState.descriptionRound}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Topic: {gameState.topic}
-            {gameState.isImposter ? (
-              <span className="block text-red-600">You are the Imposter!</span>
-            ) : (
-              <span className="block text-green-600">Secret Word: {gameState.secretWord}</span>
-            )}
           </p>
-          <p className="mt-2 text-center text-sm text-gray-500">
-            Round {gameState.descriptionRound} 
-          </p>
+          {gameState.isImposter ? (
+            <p className="mt-2 text-center text-red-600 font-bold">
+              You are the Imposter!
+              {gameState.topic === "Questions" && (
+                <span className="block mt-2">Your Question: {gameState.word}</span>
+              )}
+            </p>
+          ) : (
+            <p className="mt-2 text-center text-green-600 font-bold">
+              {gameState.topic === "Questions" ? (
+                <span>Your Question: {gameState.word}</span>
+              ) : (
+                <span>The word is: {gameState.word}</span>
+              )}
+            </p>
+          )}
         </div>
 
         <div className="mt-4">
@@ -549,6 +560,11 @@ function Game() {
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
               Round Results
             </h2>
+            {gameState.topic === "Questions" && (
+              <p className="mt-4 text-center text-lg font-medium text-gray-900">
+                Main Question: {gameState.mainQuestion}
+              </p>
+            )}
             <div className="mt-4 text-center">
               <p className="text-lg font-medium text-gray-900">
                 Most Voted Players (Lost this round):
