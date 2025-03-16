@@ -4,8 +4,12 @@ import { Dialog } from '@headlessui/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 
-const socket = io();
-
+const socket = io(window.location.origin, {
+  transports: ['websocket', 'polling'],
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000
+});
 
 
 function Game() {
@@ -239,6 +243,35 @@ function Game() {
                 Bluff as best as you can, and uncover the imposter to win!
               </p>
             </div>
+            
+                          <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-indigo-100 text-indigo-600 text-lg font-semibold">3</span>
+                </div>
+                <p className="ml-4 text-gray-600">
+                  Example of how to play the game: 
+                  <a 
+                    href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-indigo-500 hover:text-indigo-700  ml-1"
+                  >
+                    Click Here For The 
+                  </a>
+
+                  <a 
+                    href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-indigo-500 hover:text-indigo-700  ml-1"
+                  >
+                  Video
+                  </a>
+
+
+                </p>
+              </div>
+
           </div>
         </div>
 

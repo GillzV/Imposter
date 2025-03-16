@@ -395,10 +395,16 @@ io.on('connection', (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 3001;
-const HOST = '0.0.0.0';
+const PORT = process.env.PORT || 3002;
+const HOST = '0.0.0.0';  // Listen on all available network interfaces
 
 server.listen(PORT, HOST, () => {
-  console.log(`Server running on http://${HOST}:${PORT}`);
-  console.log('To connect from other devices, use your computer\'s local IP address');
+  console.log(`Server running on port ${PORT}`);
+  console.log('To connect from other networks:');
+  console.log('1. Set up port forwarding on your router:');
+  console.log(`   - External port: ${PORT}`);
+  console.log(`   - Internal port: ${PORT}`);
+  console.log(`   - Protocol: TCP`);
+  console.log('2. Find your public IP at: https://www.whatismyip.com');
+  console.log('3. Players can connect using: http://YOUR_PUBLIC_IP:3002');
 }); 
