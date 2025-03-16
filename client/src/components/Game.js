@@ -4,12 +4,7 @@ import { Dialog } from '@headlessui/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 
-const socket = io(window.location.origin, {
-  transports: ['websocket', 'polling'],
-  reconnection: true,
-  reconnectionAttempts: 5,
-  reconnectionDelay: 1000
-});
+const socket = io();
 
 
 function Game() {
@@ -256,16 +251,16 @@ function Game() {
                     rel="noopener noreferrer"
                     className="text-indigo-500 hover:text-indigo-700  ml-1"
                   >
-                    Click Here For The 
+                    Click here for the 
                   </a>
 
                   <a 
-                    href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                    href="https://www.tiktok.com/@fullsquadgaming/video/7331950641352297771?lang=en"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-indigo-500 hover:text-indigo-700  ml-1"
                   >
-                  Video
+                  video
                   </a>
 
 
