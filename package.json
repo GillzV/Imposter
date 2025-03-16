@@ -5,10 +5,14 @@
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
+    "client-install": "npm install --prefix client",
+    "client-build": "npm run build --prefix client",
+    "build": "npm run client-install && npm run client-build",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "nodemon server/index.js",
     "client": "cd client && npm start",
     "install-all": "npm install && cd client && npm install"
+    
   },
   "dependencies": {
     "cors": "^2.8.5",
