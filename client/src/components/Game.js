@@ -416,6 +416,17 @@ function Game() {
   const renderDescriptionScreen = () => (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
+        {gameState.isImposter && gameState.topic === "Questions" && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="text-center text-red-600 font-bold">
+              You are the Imposter!
+            </p>
+            <p className="text-center text-red-600 mt-2">
+              Your Question: {gameState.word}
+            </p>
+          </div>
+        )}
+
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Round {gameState.descriptionRound}
@@ -423,21 +434,39 @@ function Game() {
           <p className="mt-2 text-center text-sm text-gray-600">
             Topic: {gameState.topic}
           </p>
-          {gameState.isImposter ? (
-            <p className="mt-2 text-center text-red-600 font-bold">
-              You are the Imposter!
-              {gameState.topic === "Questions" && (
-                <span className="block mt-2">Your Question: {gameState.word}</span>
-              )}
-            </p>
-          ) : (
-            <p className="mt-2 text-center text-green-600 font-bold">
-              {gameState.topic === "Questions" ? (
-                <span>Your Question: {gameState.word}</span>
+          {gameState.topic === "Questions" && (
+            <>
+              {gameState.isImposter ? (
+                // Only show main question after round 1 for imposter
+                gameState.descriptionRound > 1 && (
+                  <p className="mt-4 text-center text-lg font-medium text-gray-900">
+                    Main Question: {gameState.mainQuestion}
+                  </p>
+                )
               ) : (
-                <span>The word is: {gameState.word}</span>
+                // Investigators see their question
+                <p className={`mt-2 text-center ${gameState.descriptionRound === 1 ? 'text-green-600 font-bold' : 'text-gray-900'}`}>
+                  {gameState.descriptionRound === 1 ? (
+                    <span>Your Question: {gameState.word}</span>
+                  ) : (
+                    <span>Main Question: {gameState.mainQuestion}</span>
+                  )}
+                </p>
               )}
-            </p>
+            </>
+          )}
+          {gameState.topic !== "Questions" && (
+            <>
+              {gameState.isImposter ? (
+                <p className="mt-2 text-center text-red-600 font-bold">
+                  You are the Imposter!
+                </p>
+              ) : (
+                <p className="mt-2 text-center text-green-600 font-bold">
+                  <span>The word is: {gameState.word}</span>
+                </p>
+              )}
+            </>
           )}
         </div>
 
